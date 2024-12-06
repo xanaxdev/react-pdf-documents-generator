@@ -65,33 +65,34 @@ const InvoicePDF: React.FC<{ data: InvoiceData }> = ({ data }) => {
   );
 
   return (
+    // PDF Document HTML Code
     <Document>
       <Page size="A4" style={styles.page}>
-        <Text style={styles.header}>Faktura</Text>
+        <Text style={styles.header}>Invoice</Text>
         <View style={styles.section}>
-          <Text>Numer faktury: {data.invoiceNumber}</Text>
-          <Text>Klient: {data.customerName}</Text>
-          <Text>Adres: {data.customerAddress}</Text>
+          <Text>Invoice number: {data.invoiceNumber}</Text>
+          <Text>Client: {data.customerName}</Text>
+          <Text>Address: {data.customerAddress}</Text>
         </View>
         <View style={styles.table}>
           <View style={[styles.tableRow, styles.tableHeader]}>
-            <Text style={styles.tableCol}>Produkt</Text>
-            <Text style={styles.tableCol}>Cena</Text>
-            <Text style={styles.tableCol}>Ilość</Text>
-            <Text style={styles.tableCol}>Łączna cena</Text>
+            <Text style={styles.tableCol}>Product</Text>
+            <Text style={styles.tableCol}>Price</Text>
+            <Text style={styles.tableCol}>Amount</Text>
+            <Text style={styles.tableCol}>Total price</Text>
           </View>
           {data.items.map((item, index) => (
             <View key={index} style={styles.tableRow}>
               <Text style={styles.tableCol}>{item.product}</Text>
-              <Text style={styles.tableCol}>{item.price} PLN</Text>
+              <Text style={styles.tableCol}>{item.price} $</Text>
               <Text style={styles.tableCol}>{item.quantity}</Text>
               <Text style={styles.tableCol}>
-                {item.price * item.quantity} PLN
+                {item.price * item.quantity} $
               </Text>
             </View>
           ))}
         </View>
-        <Text style={styles.total}>Łączna kwota: {total} PLN</Text>
+        <Text style={styles.total}>Total price is {total} $</Text>
       </Page>
     </Document>
   );
@@ -203,7 +204,9 @@ const InvoiceGenerator: React.FC = () => {
           </label>
         </div>
       ))}
-      <button onClick={addItem}>Dodaj pozycję</button>
+      <button onClick={addItem} style={{ margin: "20px 0px" }}>
+        Add new position
+      </button>
       <br />
       <PDFDownloadLink
         document={<InvoicePDF data={formData} />}
