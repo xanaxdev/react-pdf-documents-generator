@@ -1,0 +1,229 @@
+import React, { useState } from "react";
+import {
+  PDFDownloadLink,
+  Page,
+  Text,
+  View,
+  Document,
+  StyleSheet,
+} from "@react-pdf/renderer";
+import { Font } from "@react-pdf/renderer";
+
+// Rejestracja fontów Roboto
+Font.register({
+  family: "Roboto",
+  fonts: [
+    {
+      src: "/src/assets/font/Roboto-Regular.ttf",
+      fontWeight: "normal",
+      fontStyle: "normal",
+    },
+    {
+      src: "/src/assets/font/Roboto-Bold.ttf",
+      fontWeight: "bold",
+      fontStyle: "normal",
+    },
+    {
+      src: "/src/assets/font/Roboto-Italic.ttf",
+      fontWeight: "normal",
+      fontStyle: "italic",
+    },
+    {
+      src: "/src/assets/font/Roboto-BoldItalic.ttf",
+      fontWeight: "bold",
+      fontStyle: "italic",
+    },
+  ],
+});
+
+// Style dokumentu PDF
+const styles = StyleSheet.create({
+  page: { padding: 30, fontSize: 12, fontFamily: "Roboto" },
+  section: { marginBottom: 10 }, // Dodaj styl `section`
+  header: {
+    fontSize: 18,
+    fontFamily: "Roboto",
+    fontWeight: "bold",
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  text: { fontFamily: "Roboto", fontWeight: "normal" },
+  boldText: { fontFamily: "Roboto", fontWeight: "bold" },
+  italicText: { fontFamily: "Roboto", fontStyle: "italic" },
+  table: { display: "flex", width: "auto", marginTop: 10 },
+  tableRow: { flexDirection: "row" },
+  tableCol: { width: "25%", borderStyle: "solid", borderWidth: 1, padding: 5 },
+  tableHeader: { fontWeight: "bold", backgroundColor: "#f0f0f0" },
+  total: { marginTop: 10, fontWeight: "bold", textAlign: "right" },
+});
+
+// Komponent do tworzenia PDF
+const InvoicePDF: React.FC<{ data: InvoiceData }> = ({ data }) => {
+  const total = data.items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        <Text style={styles.header}>Faktura</Text>
+        <View style={styles.section}>
+          <Text>Numer faktury: {data.invoiceNumber}</Text>
+          <Text>Klient: {data.customerName}</Text>
+          <Text>Adres: {data.customerAddress}</Text>
+        </View>
+        <View style={styles.table}>
+          <View style={[styles.tableRow, styles.tableHeader]}>
+            <Text style={styles.tableCol}>Produkt</Text>
+            <Text style={styles.tableCol}>Cena</Text>
+            <Text style={styles.tableCol}>Ilość</Text>
+            <Text style={styles.tableCol}>Łączna cena</Text>
+          </View>
+          {data.items.map((item, index) => (
+            <View key={index} style={styles.tableRow}>
+              <Text style={styles.tableCol}>{item.product}</Text>
+              <Text style={styles.tableCol}>{item.price} PLN</Text>
+              <Text style={styles.tableCol}>{item.quantity}</Text>
+              <Text style={styles.tableCol}>
+                {item.price * item.quantity} PLN
+              </Text>
+            </View>
+          ))}
+        </View>
+        <Text style={styles.total}>Łączna kwota: {total} PLN</Text>
+      </Page>
+    </Document>
+  );
+};
+
+// Główny komponent aplikacji
+const InvoiceGenerator: React.FC = () => {
+  const [formData, setFormData] = useState<InvoiceData>({
+    invoiceNumber: "2024/001",
+    customerName: "Jan Kowalski",
+    customerAddress: "ul. Testowa 12, 00-000 Warszawa",
+    items: [
+      { product: "Produkt 1", price: 100, quantity: 1 },
+      { product: "Produkt 2", price: 200, quantity: 2 },
+    ],
+  });
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    index?: number
+  ) => {
+    const { name, value } = e.target;
+
+    if (index !== undefined) {
+      const updatedItems = [...formData.items];
+      const key = name as keyof InvoiceItem;
+
+      // Obsługa typów dla pól liczbowych i tekstowych
+      if (key === "price" || key === "quantity") {
+        updatedItems[index][key] = Number(value) as never;
+      } else {
+        updatedItems[index][key] = value as never;
+      }
+
+      setFormData({ ...formData, items: updatedItems });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
+  };
+
+  const addItem = () => {
+    setFormData({
+      ...formData,
+      items: [...formData.items, { product: "", price: 0, quantity: 1 }],
+    });
+  };
+
+  return (
+    <div style={{ padding: "20px", maxWidth: "800px", margin: "auto" }}>
+      <h2>Wprowadź dane faktury</h2>
+      <label>
+        Numer faktury:
+        <input
+          type="text"
+          name="invoiceNumber"
+          value={formData.invoiceNumber}
+          onChange={(e) => handleInputChange(e)}
+        />
+      </label>
+      <br />
+      <label>
+        Klient:
+        <input
+          type="text"
+          name="customerName"
+          value={formData.customerName}
+          onChange={(e) => handleInputChange(e)}
+        />
+      </label>
+      <br />
+      <label>
+        Adres:
+        <input
+          type="text"
+          name="customerAddress"
+          value={formData.customerAddress}
+          onChange={(e) => handleInputChange(e)}
+        />
+      </label>
+      <br />
+      <h3>Pozycje:</h3>
+      {formData.items.map((item, index) => (
+        <div key={index}>
+          <label>
+            Produkt:
+            <input
+              type="text"
+              name="product"
+              value={item.product}
+              onChange={(e) => handleInputChange(e, index)}
+            />
+          </label>
+          <label>
+            Cena:
+            <input
+              type="number"
+              name="price"
+              value={item.price}
+              onChange={(e) => handleInputChange(e, index)}
+            />
+          </label>
+          <label>
+            Ilość:
+            <input
+              type="number"
+              name="quantity"
+              value={item.quantity}
+              onChange={(e) => handleInputChange(e, index)}
+            />
+          </label>
+        </div>
+      ))}
+      <button onClick={addItem}>Dodaj pozycję</button>
+      <br />
+      <PDFDownloadLink
+        document={<InvoicePDF data={formData} />}
+        fileName={`invoice_${formData.invoiceNumber}.pdf`}
+        style={{
+          marginTop: "20px",
+          padding: "10px 20px",
+          backgroundColor: "#4CAF50",
+          color: "white",
+          border: "none",
+          cursor: "pointer",
+          borderRadius: "4px",
+          textDecoration: "none",
+        }}
+      >
+        Pobierz PDF
+      </PDFDownloadLink>
+    </div>
+  );
+};
+
+export default InvoiceGenerator;
