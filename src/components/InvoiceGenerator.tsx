@@ -97,15 +97,15 @@ const InvoicePDF: React.FC<{ data: InvoiceData }> = ({ data }) => {
   );
 };
 
-// Główny komponent aplikacji
+// Main app component
 const InvoiceGenerator: React.FC = () => {
   const [formData, setFormData] = useState<InvoiceData>({
     invoiceNumber: "2024/001",
-    customerName: "Jan Kowalski",
-    customerAddress: "ul. Testowa 12, 00-000 Warszawa",
+    customerName: "Jake Noname",
+    customerAddress: "st. Testowa 12, 00-000 Warsaw",
     items: [
-      { product: "Produkt 1", price: 100, quantity: 1 },
-      { product: "Produkt 2", price: 200, quantity: 2 },
+      { product: "Product 1", price: 100, quantity: 1 },
+      { product: "Product 2", price: 200, quantity: 2 },
     ],
   });
 
@@ -119,7 +119,6 @@ const InvoiceGenerator: React.FC = () => {
       const updatedItems = [...formData.items];
       const key = name as keyof InvoiceItem;
 
-      // Obsługa typów dla pól liczbowych i tekstowych
       if (key === "price" || key === "quantity") {
         updatedItems[index][key] = Number(value) as never;
       } else {
@@ -141,9 +140,9 @@ const InvoiceGenerator: React.FC = () => {
 
   return (
     <div style={{ padding: "20px", maxWidth: "800px", margin: "auto" }}>
-      <h2>Wprowadź dane faktury</h2>
+      <h2>Fill invoice test datas</h2>
       <label>
-        Numer faktury:
+        Document Number:
         <input
           type="text"
           name="invoiceNumber"
@@ -153,7 +152,7 @@ const InvoiceGenerator: React.FC = () => {
       </label>
       <br />
       <label>
-        Klient:
+        Client:
         <input
           type="text"
           name="customerName"
@@ -172,11 +171,11 @@ const InvoiceGenerator: React.FC = () => {
         />
       </label>
       <br />
-      <h3>Pozycje:</h3>
+      <h3>Positions:</h3>
       {formData.items.map((item, index) => (
         <div key={index}>
           <label>
-            Produkt:
+            Product name:
             <input
               type="text"
               name="product"
@@ -185,7 +184,7 @@ const InvoiceGenerator: React.FC = () => {
             />
           </label>
           <label>
-            Cena:
+            Price:
             <input
               type="number"
               name="price"
@@ -194,7 +193,7 @@ const InvoiceGenerator: React.FC = () => {
             />
           </label>
           <label>
-            Ilość:
+            Amount:
             <input
               type="number"
               name="quantity"
@@ -220,7 +219,7 @@ const InvoiceGenerator: React.FC = () => {
           textDecoration: "none",
         }}
       >
-        Pobierz PDF
+        Download File
       </PDFDownloadLink>
     </div>
   );
